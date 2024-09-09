@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Brynn Rotbart"
 output: pdf_document
 ---
 
