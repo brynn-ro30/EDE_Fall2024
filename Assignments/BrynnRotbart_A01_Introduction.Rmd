@@ -22,22 +22,26 @@ Enter answers to the questions just below the >Answer: prompt.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: I am completely new to this world. I tried to self teach myself HTML and I know incredibly basic Python Imagery coding, but I don't think either of those skills will be helping me in this class. 
+> Answer: 
+I am completely new to this world. I tried to self teach myself HTML and I know incredibly basic Python Imagery coding, but I don't think either of those skills will be helping me in this class. 
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: No, I definiteley feel a little nervous. I am not a Data and Analytics person and this class does not count towards any of my concentration requirements, but I think R is a valuable skill I want to learn how to use. All that to say, data and analyses does not come easily to me, and I did not choose it as my concentration for a reason, but I am excited to learn R! 
+> Answer: 
+No, I definiteley feel a little nervous. I am not a Data and Analytics person and this class does not count towards any of my concentration requirements, but I think R is a valuable skill I want to learn how to use. All that to say, data and analyses does not come easily to me, and I did not choose it as my concentration for a reason, but I am excited to learn R! 
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: Like I said above, I am not a numbers person (which is ironic since both of my degrees will be in science), so I am nervous that there may be some friction when it comes to my brains willingness to grasp the concepts. Or it may be totally fine! Only time will tell. 
+> Answer: 
+Like I said above, I am not a numbers person (which is ironic since both of my degrees will be in science), so I am nervous that there may be some friction when it comes to my brains willingness to grasp the concepts. Or it may be totally fine! Only time will tell. 
 
 
 ## 2) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository and that you have updated your course README file, committed those changes, and pushed them to your GitHub account. 
 
-> Answer: https://github.com/brynn-ro30/EDE_Fall2024 
+> Answer: 
+https://github.com/brynn-ro30/EDE_Fall2024 
 
 ## 3) Knitting
 When you have completed this document, click the `knit` button.This should produce a PDF copy of your markdown document. Submit this PDF to Canvas 

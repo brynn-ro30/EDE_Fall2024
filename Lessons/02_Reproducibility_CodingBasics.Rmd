@@ -99,8 +99,8 @@ median(5, 4, 6, 4, 6)
 4 < 5
 4 != 5
 4 == 5
-!= is different than 
-== is the same as 
+#!= is different than 
+#== is the same as 
 ```
 
 ### Objects
