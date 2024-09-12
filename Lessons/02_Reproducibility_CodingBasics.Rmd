@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 title: "2: Reproducibility and Coding Basics"
 subtitle: "Environmental Data Analytics"
 author: "John Fay and Luana Lima | Developed by Kateri Salk"
@@ -94,7 +99,8 @@ median(5, 4, 6, 4, 6)
 4 < 5
 4 != 5
 4 == 5
-
+!= is different than 
+== is the same as 
 ```
 
 ### Objects
@@ -145,11 +151,11 @@ Within your R code, it is often useful to include notes about your workflow. So 
 R functions are the major tool used in R. Functions can do virtually unlimited things within the R universe, but each function requires specific inputs that are provided under specific syntax. We will start with a simple function that is built into R, `seq`
 
 ```{r}
-seq(1, 10)
+seq(1, 10) # [1]  1  2  3  4  5  6  7  8  9 10
 ten_sequence <- seq(1, 10)
 ten_sequence
 
-seq(1, 10, 2) # from, to, by
+seq(1, 10, 2) # from, to, by.  1 3 5 7 9
 ```
 
 The basic form of a function is `functionname()`, and the packages we will use in this class will use these basic forms. However, there may be situations when you will want to create your own function. Below is a description of how to write functions through the metaphor of creating a recipe (credit: @IsabellaGhement on Twitter).
@@ -157,7 +163,7 @@ The basic form of a function is `functionname()`, and the packages we will use i
 Writing a function is like writing a recipe. Your function will need a recipe name (functionname). Your recipe ingredients will go inside the parentheses. The recipe steps and end product go inside the curly brackets.
 
 ```{r}
-functionname <- function(){
+functionname <- function(){ #functionname will be an object so you have to assign it something 
   
 }
 ```
@@ -170,9 +176,10 @@ recipe1 <- function(x){
   mix <- x*2
   return(mix)
 }
-
+#is just x because it is a single ingredient recipe.
 # Bake the recipe
 simplemeal <- recipe1(5)
+#assigning the recipe you just made a new object. x will now be assigned the value of 5. So simplemeal=10 
 
 # Serve the recipe
 simplemeal
