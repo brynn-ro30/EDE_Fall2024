@@ -3,6 +3,8 @@ title: "3: Data Exploration"
 author: "Environmental Data Analytics | John Fay & Luana Lima"
 date: "Fall 2024"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Lesson Objectives
@@ -16,7 +18,7 @@ output: pdf_document
 
 Why is data exploration our first step in analyzing a dataset? What information do we gain? How does data exploration aid in our decision-making for data analysis steps further down the pipeline?
 
->Answer: 
+>Answer: to better know the next steps to analyze it and understand it 
 
 ---
 
@@ -25,10 +27,20 @@ Why is data exploration our first step in analyzing a dataset? What information 
 ```{r, Setup-Import-Explore, message = FALSE}
 ## -Set up-
 # 1. Load packages (tidyverse, here)
+library(tidyverse)
+library(here)
 
 # 2. Check the working directory
+getwd()
+here()
 
 # 3. Import datasets
+USGS.flow.data <- read.csv(
+  file = here('Data/Processed/USGS_Site02085000_Flow_Processed.csv'), 
+  stringsAsFactors = TRUE,
+  colClasses = c('site_no'='factor')
+  )
+  #want to make site number a factor 
 
 ## -Initial Exploration-
 
@@ -36,12 +48,14 @@ Why is data exploration our first step in analyzing a dataset? What information 
 # Alternate option: click on data frame in Environment tab
 
 #View column names and the structure of the dataset
+colnames(USGS.flow.data)
+str(USGS.flow.data)
 
 # Check our date column: is it a date object?
-
+class(USGS.flow.data)
 # Change it to a date object and confirm
-
-
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = '%Y-%m-%d')
+class(USGS.flow.data$datetime)
 ```
 
 ---
@@ -58,30 +72,32 @@ Visualize count data for categorical variables.
 ```{r, fig.height = 3, fig.width = 4}
 ggplot(data = USGS.flow.data, aes(x = discharge.mean.approval)) +
   geom_bar()
+#gives r a graph paper, aes is the aeshtetics of how to do that, what we want it to look like. 
 ```
 
 ### Histogram (function: geom_histogram)
 Visualize distributions of values for continuous numerical variables. What is happening in each line of code? Insert a comment above each line.
 
 ```{r, fig.height = 3, fig.width = 4}
-# 
+# x axis is discharge mean 
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean))
 
-# 
+# is the width of the histogram bar 
 ggplot(USGS.flow.data) +
-  geom_histogram(aes(x = discharge.mean), binwidth = 10)
+  geom_histogram(aes(x = discharge.mean), binwidth = 1000)
 
-# 
+# can change the number of bins, or removes uneccesary bins with no data 
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), bins = 20)
 
-# 
+# we are creating a new canvas
 ggplot(USGS.flow.data, aes(x = discharge.mean)) +
   geom_histogram(binwidth = 10) + 
-  scale_x_continuous(limits = c(0, 500))
+  scale_x_continuous(limits = c(0, 500)) 
+#full spread of data, focuses on values up to 500 
   
-# 
+# looking at different value here 
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = gage.height.mean))
 
@@ -92,18 +108,19 @@ ggplot(USGS.flow.data) +
 An alternate to a histogram is a frequency polygon graph (distributions of values for continuous numerical variables). Instead of displaying bars,  counts of continuous variables are displayed as lines. This is advantageous if you want to display multiple variables or categories of variables at once.
 
 ```{r, fig.height = 3, fig.width = 4}
-#
+#this ^ will help your knitting document know how to format it 
+#creating new plot based on usgs flow data, have three geomes now. like putting paper down and then drawing stuff on it.lty= line type in this case dashed 
 ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.mean), bins = 50) +
-  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "darkgray") +
+  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "pink") +
   geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2) +
   scale_x_continuous(limits = c(0, 10))
 
-#
+#color is inside the aes which means they will apply some sort of attribute to the plot based off data frame, and in this case its going to be categorical. 
 ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.mean, color = gage.height.mean.approval), bins = 50) +
   scale_x_continuous(limits = c(0, 10)) +
-  theme(legend.position = "top")
+  theme(legend.position = "left")
 
 ```
 
@@ -122,15 +139,15 @@ A box-and-whisker plot is yet another alternative to histograms (distributions o
 An alternate option is a violin plot, which displays density distributions, somewhat like a hybrid of the box-and-whiskers and the frequency polygon plot.
 
 ```{r, fig.height = 3, fig.width = 4}
-#
+#gives us boxplots, 3, because it is assigning one box plot to all the things without value. the big fat line in the box plot is the median. the box itself is showing the IQR. 
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean.approval, y = gage.height.mean))
 
-#
+#when x value is continous. has two continous values here. can see the relationship across bins in mean discharge height 
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean, y = discharge.mean, group = cut_width(gage.height.mean, 1)))
 
-#
+#violin plot yeeeeeeeeeeeeeeeeeeeeet
 ggplot(USGS.flow.data) +
   geom_violin(aes(x = gage.height.mean.approval, y = gage.height.mean), 
               draw_quantiles = c(0.25, 0.5, 0.75))
@@ -138,11 +155,13 @@ ggplot(USGS.flow.data) +
 
 ### Scatterplot (function: geom_point)
 Visualize relationships between continuous numerical variables.
-
+Scatter plot is good for looking at correlation between variables 
 ```{r, fig.height = 3, fig.width = 4}
 ggplot(USGS.flow.data) +
-  geom_point(aes(x = discharge.mean, y = gage.height.mean))
-
+  geom_point(aes
+             (x = discharge.mean, 
+               y = gage.height.mean))
+#date time shows gaps in data set. put date time in x its good for time series analysis 
 ggplot(USGS.flow.data) +
   geom_point(aes(x = datetime, y = discharge.mean))
 ```
