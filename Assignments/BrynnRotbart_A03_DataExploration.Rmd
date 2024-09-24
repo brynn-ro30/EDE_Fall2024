@@ -32,7 +32,7 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Ex
 
 1.  Load necessary packages (tidyverse, lubridate, here), check your current working directory and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. Be sure to include the subcommand to read strings in as factors.
 
-```{r,  message = FALSE} 
+```{r,  Setup, Import, and Explore, message = FALSE} 
 #install tidyverse, lubridate, and here 
 library(tidyverse)
 library(lubridate)
@@ -61,20 +61,22 @@ Neonicotinoids are a pesticide that cannot target specific variants of insects. 
 
 3.  The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information.
 
-> Answer:
+> Answer: 
+Woody debris can tell us a lot about forest health as well as the insects and other creatures that live there. Woody debris can be sampled for pathogens, species vulnerability (if one species is shedding more than others), as well as the creatures that live there. Leaf herbivory and wood boring insects commonly live in these woody debris and can be an indicator of populations and impact of their presence. 
 
 4.  How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of salient information about the sampling methods here:
 
 > Answer: 
- 1.
- 2.
- 3. 
+ 1. Occurs in randomly selected tower plots 
+ 2.In sites with forested tower airsheds, the sampling is targeted to take place in 20 40m x 40m plots. In sites with low-statured vegetation over the tower airsheds, sampling is targeted to take place in 4 40m x 40m tower plots
+ 3. In sites with > 50% aerial cover of woody vegeta􏰁on >2m in height, placement of litter traps is random
 
 ## Obtain basic summaries of your data (Neonics)
 
 5.  What are the dimensions of the dataset?
 
-```{r}
+```{r, summary, dimensions of Neonics}
+#load summary and dimensions of Neonics 
 summary(Neonics)
 dim(Neonics)
 
@@ -82,111 +84,132 @@ dim(Neonics)
 
 6.  Using the `summary` function on the "Effect" column, determine the most common effects that are studied. Why might these effects specifically be of interest? [Tip: The `sort()` command is useful for listing the values in order of magnitude...]
 
-```{r}
+```{r, Summary of Neonics Effects Column}
+#shows the summary of the effect feature of the Neonics dataset 
 summary(Neonics$Effect)
 
 ```
 
 > Answer:
-Population and then mortality EXPAND 
+Population and then mortality are the most important effects. This would be important because seeing how certain populations are dwindling helps to better understand the effect of the pesticide. Mortality does generally the same thing. Both of these effects help understand what species may be in danger or have population numbers plummeting quickly. 
 
 7.  Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.[TIP: Explore the help on the `summary()` function, in particular the `maxsum` argument...]
 
-```{r}
-summary(Neonics$Species.Common.Name)
+```{r, Neonics, Most Studied Species}
+summary(Neonics$Species.Common.Name, maxsum=7)
+#used maxsum to show the top 7 results for this column because 6 compiled, 
+#all the other species into one category for the seixth variable 
 
 ```
 
 > Answer:
-Honey Bee, Paraitic Wasp, Buff Tailed Bumblebee, Carnolian Honey Bee, Bumble Bee, Italian Honeybee 
-EXPAND
+Honey Bee, Paraitic Wasp, Buff Tailed Bumblebee, Carnolian Honey Bee, Bumble Bee, Italian Honeybee. Almost all of these species are pollinators and pollinators are vital to our ecosystem. This shows how harmful this pesticide can be, especially in the broader scope of biological diversity and pollination. 
 
 8.  Concentrations are always a numeric value. What is the class of `Conc.1..Author.` column in the dataset, and why is it not numeric? [Tip: Viewing the dataframe may be helpful...]
 
-```{r}
+```{r, Neonics Concentrations 1 Summary and Class}
 summary(Neonics$Conc.1..Author.)
-
+class(Neonics$Conc.1..Author.)
+#this helps us see the concentration and summary of this column. It is a factor 
 ```
 
-> Answer: It is a factor, non-number characters in column, is not a full numeric answer either, seems to be a calculation 
+> Answer: 
+It is a factor, and there are non-number characters in column (/ for example), and it is not a full numeric answer either; it seems to be an unfinished calculation 
 
 ## Explore your data graphically (Neonics)
 
 9.  Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year.
 
-```{r}
+```{r, Number of Studies by Pulication Year Graph}
 ggplot(Neonics) +
   geom_freqpoly(aes(x=Publication.Year))
+#uses ggplot and geom_freqpoly functions 
 
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
 
-```{r}
+```{r, Number of Studies by Pulication Year Graph with Color}
 ggplot(Neonics) +
   geom_freqpoly(aes(x=Publication.Year, color=Test.Location))
-
+#keep color= inside of initial x factor and outside of aes 
 
 ```
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
 
-> Answer:
+> Answer: 
+The most common test locations are the lab which grew over time and in the field which peaks around 2019 but is otherwise somewhat insignificant. The graphs fall and rise which makes sense because certain insects may be more prevalent in some years than others due to brooding and hibernation years. 
 
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
 [**TIP**: Add `theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))` to the end of your plot command to rotate and align the X-axis labels...]
 
-```{r}
+```{r, Bar Function of Endpoint Counts}
 ggplot(Neonics) + 
   geom_bar(aes(x=Endpoint)) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
+#ggplot and geom_bar were used here 
 ```
 
-> Answer: LOEL and NOEL are the most common endpoints in this data set. LOEL is the lowest observed effect level and the NOEL level means there was no observed effect. LOEL is the lowest dose of the toxicant that they were testing where an effect was observed, and conversely NOEL is the highest dose of the toxicant observed where there was no effect. 
+> Answer: 
+LOEL and NOEL are the most common endpoints in this data set. LOEL is the lowest observed effect level and the NOEL level means there was no observed effect. LOEL is the lowest dose of the toxicant that they were testing where an effect was observed, and conversely NOEL is the highest dose of the toxicant observed where there was no effect. 
 
 ## Explore your data (Litter)
 
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018.
 
-```{r}
+```{r, Change and Formatting of Date }
+
+Litter$weighDate <- as.Date(Litter$weighDate, format = "%Y", "%m", "%d") 
 class(Litter$collectDate)
 unique(Litter$collectDate)
-#LEFT OFF HERE 
-
 #August 2nd and August 30th in 2018 were the dates litter was collected.,
-The unique function will show the repeated values only once wheras summary whill show all of the values even if they are repeated. 
+#The unique function will show the repeated values only once wheras summary,
+#whill show all of the values even if they are repeated. 
 
 ```
 
 13. Using the `unique` function, determine how many different plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
-```{r}
-unique(Litter$plotID)
+```{r, Number of Plots Sampled}
+unique(Litter$plotID) 
+summary(Litter$plotID)
+#shows the plot ID of both the unique and summary stats of litter sampling 
 
 ```
-
 > Answer:
+The unique function returns the plot ID's, whereas the summary function returns,
+both the plot ID and the count for each plot ID as well. 
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 
-```{r}
-
-
+```{r, Types of Litter Collected}
+ggplot(data = Litter, aes(x = functionalGroup)) +
+  geom_bar()
+#geom_bar for bar graphs 
 ```
 
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup.
 
-```{r}
+```{r, Box Plot and Violin Plot of Dry Mass Litter}
+ggplot(Litter) +
+  geom_boxplot(aes(x = dryMass, y = functionalGroup))
 
-
+ggplot(Litter) +
+  geom_violin(aes(x = dryMass, y = functionalGroup))
+#geom_boxplot and geom_violin for these 
 ```
 
 Why is the boxplot a more effective visualization option than the violin plot in this case?
 
 > Answer:
+The boxplot shows the outliers and is easer to visualise. It also shows the average and standard deviation of each Dry Mass category. The violin on the other hand is hard to see and does not shows SD or average. You can't understand why the violin plots for needles and twigs/branches stretches so far but the box plot shows this. 
+
 
 What type(s) of litter tend to have the highest biomass at these sites?
 
 > Answer:
+1. Needles 
+2. Mixed 
+3. Twigs/Branches 
