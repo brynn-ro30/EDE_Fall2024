@@ -69,7 +69,7 @@ Woody debris can tell us a lot about forest health as well as the insects and ot
 > Answer: 
  1. Occurs in randomly selected tower plots 
  2.In sites with forested tower airsheds, the sampling is targeted to take place in 20 40m x 40m plots. In sites with low-statured vegetation over the tower airsheds, sampling is targeted to take place in 4 40m x 40m tower plots
- 3. In sites with > 50% aerial cover of woody vegeta􏰁on >2m in height, placement of litter traps is random
+ 3. In sites with > 50% aerial cover of woody vegetation >2m in height, placement of litter traps is random
 
 ## Obtain basic summaries of your data (Neonics)
 
@@ -77,9 +77,9 @@ Woody debris can tell us a lot about forest health as well as the insects and ot
 
 ```{r, summary, dimensions of Neonics}
 #load summary and dimensions of Neonics 
-summary(Neonics)
-dim(Neonics)
-
+#summary(Neonics)
+#dim(Neonics)
+#commented out because would not knit 
 ```
 
 6.  Using the `summary` function on the "Effect" column, determine the most common effects that are studied. Why might these effects specifically be of interest? [Tip: The `sort()` command is useful for listing the values in order of magnitude...]
