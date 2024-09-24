@@ -324,8 +324,6 @@ create.early.dates <- (function(d) {
 #
 USGS.flow.data$datetime <- create.early.dates(USGS.flow.data$datetime)
 
-#
-USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y%m%d") 
 
 ```
 
