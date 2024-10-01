@@ -172,26 +172,25 @@ EPAir_Processed <-
 ```
 
 9. Spread your datasets such that AQI values for ozone and PM2.5 are in separate columns. Each location on a specific date should now occupy only one row.
+```{r Question 9}
+EPAir_Processed_Gathered <- pivot_wider(EPAir_Processed, names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
+ 
+```
 
-10. Call up the dimensions of your new tidy dataset.
+
+10. Call up the dimensions of your new tidy dataset
+```{r Question 10}
+dim(EPAir_Processed_Gathered)
+```
+
 
 11. Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1819_Processed.csv"
 
-```{r questions 7 thru 11}
-#7 
-
-
-#8 
-
-
-#9
-
-
-#10
-
-
+```{r Question 11}
 #11
-
+write.csv(
+  EPAir_Processed_Gathered, row.names = FALSE, 
+          file= "./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv") 
 
 ```
 
@@ -199,16 +198,23 @@ EPAir_Processed <-
 ## Generate summary tables
 
 12. Use the split-apply-combine strategy to generate a summary data frame. Data should be grouped by site, month, and year. Generate the mean AQI values for ozone and PM2.5 for each group. Then, add a pipe to remove instances where mean **ozone** values are not available (use the function `drop_na` in your pipe). It's ok to have missing mean PM2.5 values in this result. 
+```{r Question 12}
+EPAir_Final <-
+  EPAir_Processed_Gathered %>% 
+  group_by(Site.Name, month, year) %>% 
+summarise(meanAQIOzone = mean(Ozone),
+          meanAQIPM2.5=mean(PM2.5)) %>% 
+  drop_na(meanAQIOzone)
+ 
+
+```
+
 
 13. Call up the dimensions of the summary dataset.
 
-```{r questions 12 and 13}
-
-#12
-
-
+```{r question 13}
 #13
-
+dim(EPAir_Final)
 
 
 ```
@@ -216,4 +222,5 @@ EPAir_Processed <-
 14. Why did we use the function `drop_na` rather than `na.omit`? Hint: replace `drop_na` with `na.omit` in part 12 and observe what happens with the dimensions of the summary date frame.
 
 > Answer: 
+na.omit seems to have dropped all of the N/A's including the PM2.5 n/a's, leaving us with less data and smaller dimensions. drop_na seemed to only get rid of the n/a's present in the ozone section 
 
