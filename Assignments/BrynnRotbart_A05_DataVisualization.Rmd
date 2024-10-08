@@ -104,6 +104,7 @@ Tips:
 
 ```{r Create boxplots}
 #5 
+Peter_Paul_chem$month <- factor(Peter_Paul_chem$month)
 Peter_Paul_chem_Temp <-
   ggplot(Peter_Paul_chem)+
   geom_boxplot(aes(
@@ -111,7 +112,9 @@ Peter_Paul_chem_Temp <-
     y=temperature_C, 
     color=lakename 
   ))
+
 print(Peter_Paul_chem_Temp)
+
 Peter_Paul_chem_Tp <-
   ggplot(Peter_Paul_chem)+
   geom_boxplot(aes(
@@ -120,7 +123,9 @@ Peter_Paul_chem_Tp <-
     color=lakename 
   ))+
   theme(legend.position = "none")
+
 print(Peter_Paul_chem_Tp)
+
 Peter_Paul_chem_Tn <-
   ggplot(Peter_Paul_chem)+
   geom_boxplot(aes(
@@ -131,16 +136,25 @@ Peter_Paul_chem_Tn <-
   theme(legend.position = "none")
 
 print(Peter_Paul_chem_Tn)
+
 peter_paulplot_grid<- plot_grid(
   Peter_Paul_chem_Temp, Peter_Paul_chem_Tn, Peter_Paul_chem_Tp,
           nrow=3,
           align='v')
+
 print(peter_paulplot_grid)
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
 
-> Answer: 
+> Answer: Both the temperature and the nitrogen and phopshorous load increase 
+over the summer, as expected. This makes sense because temperature increases 
+in the summer, there is more sunlight, therefore more photosynthesis,
+higher algal blooms and more bioecological activity from marine animals. 
+The temperature has a wider range in the summer, 
+but the variance between nitrogen and phosphorous loads seems more discrete, 
+not changing much from other measurements. However, 
+both measurements seems to completely absent in the colder months. 
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
 
@@ -149,12 +163,33 @@ Question: What do you observe about the variables of interest over seasons and b
 ```{r Plot litter}
 #6
 dry_mass_needle <- 
-  
+  Niwot_Ridge_Litter %>% 
+  filter(functionalGroup == "Needles") %>%  
+  ggplot()+
+  geom_point(aes(
+    x=collectDate, 
+    y=dryMass,
+    color=nlcdClass
+  ))
+print(dry_mass_needle)
 
 #7
+dry_mass_needle_facet <- 
+  Niwot_Ridge_Litter %>% 
+  filter(functionalGroup == "Needles") %>%  
+  ggplot(aes(
+    x=collectDate, 
+    y=dryMass,
+    color=nlcdClass
+    ))+
+  geom_point()+
+    facet_wrap(
+      facet=vars(nlcdClass),
+      nrow=3, ncol=1)
 
+print(dry_mass_needle_facet)
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: Plot 7 is more effective because you can differenciate between the NLCD classes far easier and the dots do not overlap one another. If we are trying to measure the dry mass of needles, it makes more sense to seperate them by NLCD class in order to measure them effectively in years to come and compare results across ecosystem types. 
