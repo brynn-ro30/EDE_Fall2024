@@ -69,10 +69,12 @@ Niwot_Ridge_Litter <-Niwot_Ridge_Litter %>% mutate(
 
 ```{r build plot theme}
 #3
-my_super_awesome_theme <- theme_base() + theme(
-plot.backgorund = element_rect('white'), 
-plot.title= element_text("green")
+my_super_awesome_theme <- theme(
+plot.background = element_rect("#9CCAC6"), 
+plot.title= element_text("#516ED2"),
 )
+
+theme_set(my_super_awesome_theme)
 
 ```
 
