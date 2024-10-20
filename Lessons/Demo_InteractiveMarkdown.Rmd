@@ -2,7 +2,8 @@
 title: 'Demo: Interactive R Markdown'
 author: Environmental Data Analytics | John Fay & Luana Lima 
 date: "Fall 2024"
-output: pdf_document
+output: html_document
+runtime: shiny 
 editor_options: 
   chunk_output_type: console
 ---
@@ -21,7 +22,7 @@ RMarkdown is a powerful tool for creating dynamic documents that combine code, t
 
 ```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
 #Load packages
-library(tidyverse);library(here);library(lubridate)
+library(tidyverse);library(here);library(lubridate);library(shiny)
 
 #Load data
 nutrient_data <- read.csv(
@@ -65,7 +66,7 @@ my_plot <- nutrient_data %>%
     x = "Date", 
     y = expression(Concentration ~ (mu*g / L)), 
     shape = "Lake", 
-    fill = "Depth (m)") +
+    color = "Depth (m)") +
   scale_color_viridis_c(
     option = "mako", 
     guide = guide_colorbar(reverse = T),
@@ -83,8 +84,69 @@ Now tweak the above code so that the variable we plot (`tp_ug`) is specified as 
 To do this we need to convince R that the value we associate with the `y` aesthetic is a variable, not a column name. This is done by the odd convention of inserting the variable within the code `!!sym()`. The `!!` (pronounced "bang-bang") combined with `sym()` are "Tidy eval helpers" necessary because tidy-R does away with quotations. See more info [here](https://ggplot2.tidyverse.org/reference/tidyeval.html).
 
 ```{r Tweak plot to use variables, echo=FALSE, eval=FALSE, warning=FALSE}
+the_parameter <- 'tn_ug' 
+start_year <- 1990 
+end_year <-2000
 
+#Construct the plot
+my_plot <- nutrient_data %>% 
+  filter(year4 > start_year & year4 < end_year) %>% 
+  ggplot(aes(
+    x = sampledate,
+    y = .data[[the_parameter]],
+    color = depth,
+    shape = lakename)) +
+  geom_point(alpha = 0.4, size = 2) +
+  scale_x_date(
+    date_breaks = "1 years",
+    date_labels = '%Y') +
+  scale_shape_manual(values = c(17, 15)) +
+  labs(
+    title = "Concentration over time, by depth and lake",
+    x = "Date", 
+    y = expression(Concentration ~ (mu*g / L)), 
+    shape = "Lake", 
+    color = "Depth (m)") +
+  scale_color_viridis_c(
+    option = "mako", 
+    guide = guide_colorbar(reverse = T),
+    direction = -1)
+
+#View the plot
+my_plot
+
+the_parameter <- 'tn_ug' 
+start_year <- 1990 
+end_year <-2000
+
+#Construct the plot
+my_plot <- nutrient_data %>% 
+  filter(year4 > start_year & year4 < end_year) %>% 
+  ggplot(aes(
+    x = sampledate,
+    y = !!sym(the_parameter),
+    color = depth,
+    shape = lakename)) +
+  geom_point(alpha = 0.4, size = 2) +
+  scale_x_date(
+    date_breaks = "1 years",
+    date_labels = '%Y') +
+  scale_shape_manual(values = c(17, 15)) +
+  labs(
+    title = "Concentration over time, by depth and lake",
+    x = "Date", 
+    y = expression(Concentration ~ (mu*g / L)), 
+    shape = "Lake", 
+    color = "Depth (m)") +
+  scale_color_viridis_c(
+    option = "mako", 
+    guide = guide_colorbar(reverse = T),
+    direction = -1)
+
+#View the plot
+my_plot
 ```
+
 
 
 ### Creating functions to generated plots with specific inputs
@@ -94,6 +156,31 @@ Next, we'll one of the uses of using variables in our plotting commands: we'll c
 To do this, rather than setting our variable values in the code chunk, we just set them as inputs to a function. Then we can copy and paste out plotting code above as the code the function executes (i.e. between the `{ }`). From there, we just call the function with the inputs we want to generate a plot. 
 
 ```{r Plot Functions, echo=FALSE, warning=FALSE}
+plot_it <- function(the_parameter, start_year, end_year){
+
+#Construct the plot
+nutrient_data %>% 
+  filter(year4 > start_year & year4 < end_year) %>% 
+  ggplot(aes(
+    x = sampledate,
+    y = .data[[the_parameter]],
+    color = depth,
+    shape = lakename)) +
+  geom_point(alpha = 0.4, size = 2) +
+  scale_x_date(
+    date_breaks = "1 years",
+    date_labels = '%Y') +
+  scale_shape_manual(values = c(17, 15)) +
+  labs(
+    title = "Concentration over time, by depth and lake",
+    x = "Date", 
+    y = expression(Concentration ~ (mu*g / L)), 
+    shape = "Lake", 
+    color = "Depth (m)") +
+  scale_color_viridis_c(
+    option = "mako", 
+    guide = guide_colorbar(reverse = T),
+    direction = -1)}
 
 ```
 
@@ -129,7 +216,23 @@ Before running our script, check the setting of each code chunk. In particular, 
 Copy the code chunk from the `Demo_WidgetDemo.Rmd` and paste into the chunk below. 
 
 ```{r, echo = FALSE, eval=FALSE}
-
+#create a selectInput widget to select which nutrient to display in the plot 
+selectInput(
+    inputId = 'the_parameter', 
+    label = "select the parameter",
+    choices = c('tp_ug' , 'tn_ug'),
+    selected = 'tp_ug'
+)
+#Create a slider widget to set the start and end year of the plot 
+sliderInput(
+  inputId = 'slider_year', 
+  label = 'select timeframe',
+  min= min(nutrient_data$year4),
+  max= max(nutrient_data$year4),
+  value= c(1990,2016),
+  round=TRUE, 
+  sep="" 
+)
 ```
 
 Run the document. Along with all the Markdown, you'll see the same interactive app as before. 
