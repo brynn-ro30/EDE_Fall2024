@@ -1,6 +1,6 @@
 ---
 title: 'A06 - Crafting Reports'
-author: "Brynn Rotbart" 
+author: "Brynn Rotbart!" 
 date: "Fall 2024"
 output: pdf_document
 toc: true 
