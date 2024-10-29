@@ -39,7 +39,8 @@ Lake_Chemistry <-read.csv(file=here
   ("Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv"),
   stringsAsFactors = TRUE)
 
-Lake_Chemistry$sampledate<- as.Date(Lake_Chemistry$sampledate, format = "%m/%d/%y")
+Lake_Chemistry$sampledate<- as.Date(Lake_Chemistry$sampledate, 
+                                    format = "%m/%d/%y")
 ```
 
 
@@ -88,11 +89,14 @@ Lake_Chemistry %>%
 
 #5
 scatter_lake <- 
-ggplot(lake_regression, aes(x=temperature_C,
-                  y=depth))+
+ggplot(lake_regression, aes(x=depth,
+                  y=temperature_C))+
                   geom_point()+
                   geom_smooth(method="lm", col="blue")+
-                  xlim(0,35)
+                  ylim(0,35)+
+                  xlab("Depth")+
+                  ylab("Temperature C")+
+                  ggtitle("Temperature by Depth")
                   
 print(scatter_lake)
 
@@ -135,17 +139,23 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 ```{r temperature.model}
 #9
+LTPAIC <- lm(data = lake_regression , temperature_C ~ depth + daynum + year4)
+step(LTPAIC)
 
-
+#Choose a model by AIC in a Stepwise Algorithm
 
 #10
+
+Temp_model <- lm(data = lake_regression , temperature_C ~ depth + daynum +
+year4)
+summary(Temp_model)
 
 
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: 
+> Answer: The AIC did not get rid of any variables (temperature, depth, daynum, and year) becasue they were all statistically significant. The AIC is 26065.53 and all variables are bigger than this value. meaning the initial model is the best fit. This variable shows the coefficients including standard deviation error and p-value as well as the degrees of freedom and r squared. R squared explains the variability which mean 74.1% of this variance can be explained by this model. This model is an improvement because it uses more variables and extract unhelpful or muddled values that are not statistically significant enough to include. This leads to a more accurate result. However, the improvement is slight, only 0.24% improvement. 
 
 
 
@@ -156,48 +166,75 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 ```{r anova.model}
 #12
+lake.regression.anova <- aov(data = lake_regression, temperature_C ~ lakename)
+summary(lake.regression.anova)
 
+lake.regression.anova2 <- lm(data = lake_regression, temperature_C ~ lakename)
+summary(lake.regression.anova2)
 
 ```
 
 13. Is there a significant difference in mean temperature among the lakes? Report your findings. 
 
-> Answer: 
-
-
+> Answer: Yes there is a signficant difference in mean temperatures among lakes as can be seen by the small P value (2.2e-16). 
 
 14. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
 ```{r scatterplot.2}
 #14.
-
-
+scatter_lake_color <- 
+ggplot(lake_regression, aes(x=depth,
+                  y=temperature_C, color=lakename))+
+                  geom_point(alpha=0.5)+
+                  geom_smooth(method="lm", col="blue", se=FALSE)+
+                  ylim(0,35)+
+                  xlab("Depth")+
+                  ylab("Temperature C")+
+                  ggtitle("Temperature by Depth According to Lake")
+                  
+print(scatter_lake_color)
 ```
 
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
 ```{r tukey.test}
 #15
+TukeyHSD(lake.regression.anova)
 
+# Extract groupings for pairwise relationships, groups = true are grouping 
+#ones w same mean 
+TukeyLake.Totals.groups <- HSD.test(lake.regression.anova, "lakename", 
+group = TRUE)
+TukeyLake.Totals.groups
 
 ```
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer:
+>Answer: Paul lake has the other mean temperature closest to Peter Lake. Ward Lake is also found in this grouping, although less similar than Peter and Paul. There are no statistically distinct groupings since every lake can be found in a grouping with another one. 
 
  
-
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
-
->Answer: 
-
+ 
+>Answer: We could use a two-sample t-test which is used to test the hypothesis that the mwan of two samples is equivalent, or in this case, if Peter and Paul lakes are equivalent.
 
 
 18. Wrangle the July data to include only records for Crampton Lake and Ward Lake. Run the two-sample T-test on these data to determine whether their July temperature are same or different. What does the test say? Are the mean temperatures for the lakes equal? Does that match you answer for part 16?
 
 ```{r t.test}
+Wrangled_CramptonWard <-
+lake_regression %>% 
+    filter(lakename== "Crampton Lake" | lakename== "Ward Lake")
+  
+Wrangled_CramptonWard_Pivot <- pivot_wider(
+Wrangled_CramptonWard, 
+    names_from = lakename, values_from = temperature_C)
+
+#Format as a t-test
+cramptonward.twosample <- t.test(Wrangled_CramptonWard$temperature_C ~ Wrangled_CramptonWard$lakename)
+cramptonward.twosample
+
 
 ```
 
->Answer: 
+>Answer: They are not equal (Crampton Lake = 15.35, Ward Lake = 14.46) which is also recognized in #16 as in the same mean group (group b, while also being in two other groups) but not equivalent 
