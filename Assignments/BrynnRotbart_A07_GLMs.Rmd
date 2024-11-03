@@ -50,14 +50,11 @@ Lake_Chemistry$sampledate<- as.Date(Lake_Chemistry$sampledate,
 #2
 
 my_theme <- theme(
-plot.background = element_rect("#9CCAC6"), 
-plot.title= element_text("#516ED2"),
-theme(axis.text = element_text(color = "black"), 
-        legend.position = "top"))
+  axis.text= element_text(color="black"),
+        legend.position = "top",
+  plot.background = element_rect("#9CCAC6")) 
 
 theme_set(my_theme)
-
-```
 
 ```
 
@@ -84,7 +81,7 @@ Lake_Chemistry %>%
     Month = month(sampledate)) %>% 
     filter(Month==07) %>% 
     select(lakename, year4, daynum, depth, temperature_C) %>% 
-    na.omit
+    na.omit()
 
 
 #5
