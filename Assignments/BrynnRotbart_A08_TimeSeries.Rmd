@@ -34,6 +34,7 @@ library(zoo)
 library(Kendall)
 library(tseries)
 library(here)
+getwd() 
 
 my_theme <- theme(
   axis.text= element_text(color="black"),
@@ -42,35 +43,80 @@ my_theme <- theme(
 
 theme_set(my_theme)
 ```
-```
 
 
 2. Import the ten datasets from the Ozone_TimeSeries folder in the Raw data folder. These contain ozone concentrations at Garinger High School in North Carolina from 2010-2019 (the EPA air database only allows downloads for one year at a time). Import these either individually or in bulk and then combine them into a single dataframe named `GaringerOzone` of 3589 observation and 20 variables. 
-
 ```{r, message = FALSE}
 #1
+Ozone_2010 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2011 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2011_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2012 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2012_raw.csv"), 
+  stringsAsFactors = TRUE) 
+Ozone_2013 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2013_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2014 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2014_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2015 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2015_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2016 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2016_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2017 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2018 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv"), 
+  stringsAsFactors = TRUE)
+Ozone_2019 <-read.csv(
+  file=here("Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv"), 
+  stringsAsFactors = TRUE)
+
+GaringerOzone <-rbind(Ozone_2010,Ozone_2011,Ozone_2012,
+                                     Ozone_2013,Ozone_2014,Ozone_2015,
+                                     Ozone_2016,Ozone_2017,Ozone_2018,
+                                     Ozone_2019)
 
 ```
 
 ## Wrangle
 
 3. Set your date column as a date class.
+```{r}
+#3
+GaringerOzone$Date <- as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
+```
+
 
 4. Wrangle your dataset so that it only contains the columns Date, Daily.Max.8.hour.Ozone.Concentration, and DAILY_AQI_VALUE. 
+```{r}
+#4
+GaringerOzone_Wrangled <-
+  GaringerOzone %>% 
+  select(Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE)
+```
 
 5. Notice there are a few days in each year that are missing ozone concentrations. We want to generate a daily dataset, so we will need to fill in any missing days with NA. Create a new data frame that contains a sequence of dates from 2010-01-01 to 2019-12-31 (hint: `as.data.frame(seq())`). Call this new data frame Days. Rename the column name in Days to "Date".
+```{r}
+#5 
+Days <-as.data.frame(seq(from= as.Date("2010-01-01"),
+                         to=as.Date("2019-12-31"), by="day"))
+names(Days)<-("Date")
+```
 
 6. Use a `left_join` to combine the data frames. Specify the correct order of data frames within this function so that the final dimensions are 3652 rows and 3 columns. Call your combined data frame GaringerOzone. 
 
 ```{r}
-# 3
-
-# 4
-
-# 5
-
 # 6
-
+GaringerOzone <- 
+  left_join(Days, GaringerOzone_Wrangled, by="Date")
 
 ```
 
@@ -80,10 +126,18 @@ theme_set(my_theme)
 
 ```{r}
 #7
+Garinger_OzoneConcentration_Time <- 
+  ggplot(GaringerOzone, aes(x=Date, y=Daily.Max.8.hour.Ozone.Concentration))+
+  geom_line()+
+  geom_smooth(method="lm", col="blue")
+
+print(Garinger_OzoneConcentration_Time) 
 
 ```
 
->Answer:
+>Answer: The ozone concentration seems to be slightly decreasing over time 
+which is shown by the blue line.
+We can also see a seasonal trend here between summer and winter. 
 
 ## Time Series Analysis
 
@@ -93,10 +147,17 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 ```{r}
 #8
-
+Garinger_Interpolation <-
+  GaringerOzone %>% 
+  mutate(Concentration = zoo::na.approx(Daily.Max.8.hour.Ozone.Concentration))
 ```
 
-> Answer: 
+> Answer: We did not use a piecewise constant because it uses the 
+"nearest neighbor" approach and for a graph that is so seasonal and variant, 
+taking data from the nearest neighbor to do an interpolation would not make 
+sense here because the winter and summer data is so different. The spline 
+approach would use a quadratic function and we want to see a linear change over 
+time. 
 
 
 9. Create a new data frame called `GaringerOzone.monthly` that contains aggregated data: mean ozone concentrations for each month. In your pipe, you will need to first add columns for year and month to form the groupings. In a separate line of code, create a new Date column with each month-year combination being set as the first day of the month (this is for graphing purposes only)
